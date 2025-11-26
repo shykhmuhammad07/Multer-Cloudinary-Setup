@@ -1,5 +1,7 @@
 import express from "express";
 import upload from "./MiddleWare/Multer.js";
+import mongoose from "./Config/db.js";
+import modelSchema from "./model/db_Schema.js";
 import { uploadOnCloudinary } from "./Config/Cloudinary.js";
 import dotenv from "dotenv";
 
@@ -25,6 +27,10 @@ app.post("/profile", upload.single("image"), async (req, res) => {
       return res.status(500).json({ msg: "Cloudinary upload failed" });
     }
 
+    await modelSchema.create({
+      imageUrl: cloud.secure_url,
+    });
+
     return res.status(200).json({
       msg: "File uploaded",
       success: true,
@@ -38,4 +44,12 @@ app.post("/profile", upload.single("image"), async (req, res) => {
   }
 });
 
-app.listen(8000, () => console.log("Server is Listening on 8000"));
+mongoose.connection.on("open", () => {
+  console.log("DataBase Connected Successflly");
+});
+
+mongoose.connection.on("error", () => {
+  console.log("DataBase Connected Successflly");
+});
+
+app.listen(process.env.PORT, () => console.log("Server is Listening on 8000"));
